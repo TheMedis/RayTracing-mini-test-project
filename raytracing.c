@@ -7,9 +7,9 @@
 #define COLOR_WHITE 0xffffffff
 #define COLOR_BLACK 0x00000000
 #define COLOR_GRAY 0xefefefef
-#define RAYS_NUMBER 100
-
-
+#define RAYS_NUMBER 1000
+#define SHADOW_CIRCLE_SPEED 3
+ 
 struct Circle
 {
     double x;
@@ -21,10 +21,33 @@ struct Ray
 {
     double x_start,y_start;
     double angle;
-
-
 };
+ 
+void move_shadow_circle(struct Circle* circle,int* up)
+{
+    	if (((circle->y - circle->r) <= 0) || ((circle->y + circle->r) >= HEIGHT)) 
+    	{
+    	*up = !(*up);
+    	}
+	if (*up==0)
+	{
+	circle->y -= SHADOW_CIRCLE_SPEED;
+	}
+	else
+	{
+	circle->y += SHADOW_CIRCLE_SPEED;
+	}
+}
 
+
+
+/**
+ * generate all rays from circle center
+ * 
+ *
+ *@param circle             struct circle.
+ *@param rays[RAYS_NUMBER]  array that will contain all rays generated.
+ */
 void generate_rays(struct Circle circle, struct Ray rays[RAYS_NUMBER])
 {
     for (int i=0; i<RAYS_NUMBER;i++)
@@ -35,7 +58,15 @@ void generate_rays(struct Circle circle, struct Ray rays[RAYS_NUMBER])
     }   
 }
 
-
+/**
+* draw all rays and check collisions with object and border
+*
+*
+*@param surface             the SDL surface to draw on.
+*@param rays[RAYS_NUMBER]   the array containing all rays to draw.
+*@param color               32-bit color value.
+*@param object              struct Circle.
+*/
 void FillRays(SDL_Surface* surface, struct Ray rays[RAYS_NUMBER], Uint32 color,struct Circle object)
 {
     double radius_squared = pow(object.r,2);
@@ -127,6 +158,7 @@ int main()
     struct Ray rays[RAYS_NUMBER];
     generate_rays(circle,rays);
 
+    int shadow_up = 0;
     int simulation_running = 1;
     SDL_Event event;
     while (simulation_running)
@@ -149,6 +181,7 @@ int main()
         SDL_FillRect(surface,&erase_rect,COLOR_BLACK);
         FillCircle(surface, circle, COLOR_WHITE);
         
+        move_shadow_circle(&shadow_circle,&shadow_up);
         FillRays(surface,rays,COLOR_GRAY,shadow_circle);
         FillCircle(surface, shadow_circle, COLOR_WHITE);
        
