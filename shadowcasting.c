@@ -390,23 +390,45 @@ int main()
     // Seed random number generator
     srand(time(NULL));
     
-    SDL_Init(SDL_INIT_VIDEO);
-    SDL_Window *window = SDL_CreateWindow("Shadow Casting", 
-                                          SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
+    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+    {
+        printf("SDL_Init failed: %s\n", SDL_GetError());
+        return 1;
+    }
+    SDL_Window *window = SDL_CreateWindow("Shadow Casting",
+                                          SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                           WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
+    if (!window)
+    {
+        printf("SDL_CreateWindow failed: %s\n", SDL_GetError());
+        return 1;
+    }
 
     // Create GPU renderer with hardware acceleration
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1,
                                                  SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    
+    // no gpu (vm, remote desktop...) so use software renderer instead
+    if (!renderer)
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    if (!renderer)
+    {
+        printf("SDL_CreateRenderer failed: %s\n", SDL_GetError());
+        return 1;
+    }
+
     // Create texture for software rendering (we still need surface for pixel manipulation)
-    SDL_Texture *texture = SDL_CreateTexture(renderer, 
-                                             SDL_PIXELFORMAT_ARGB8888, 
-                                             SDL_TEXTUREACCESS_STREAMING, 
+    SDL_Texture *texture = SDL_CreateTexture(renderer,
+                                             SDL_PIXELFORMAT_ARGB8888,
+                                             SDL_TEXTUREACCESS_STREAMING,
                                              WIDTH, HEIGHT);
-    
+
     // Create surface for pixel manipulation
     SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, WIDTH, HEIGHT, 32, SDL_PIXELFORMAT_ARGB8888);
+    if (!texture || !surface)
+    {
+        printf("could not create texture/surface: %s\n", SDL_GetError());
+        return 1;
+    }
 
     struct Circle circle = {200, 200, 10, 0, 0};
     
