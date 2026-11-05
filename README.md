@@ -1,8 +1,11 @@
 Requirements:
-  SDL2 library (graphic interface)
-	-pretty sure this command should download it
-	$ sudo apt install libsdl2-dev libsdl2-2.0-0 -y
+  C compiler + make, SDL2 library (graphic interface)
+	$ sudo apt install build-essential libsdl2-dev -y
 
 to run:
 	$ make
-	$ ./raytracing
+	$ ./shadowcasting
+
+controls:
+	move mouse - light follows it
+	click - freeze / unfreeze the light
