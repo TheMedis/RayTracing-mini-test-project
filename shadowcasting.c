@@ -223,8 +223,8 @@ int is_light_inside_circle(struct Circle light, struct Circle objects[], int obj
         double dy = light.y - objects[i].y;
         double dist_squared = dx * dx + dy * dy;
         
-        // If light center is inside the circle (with some margin)
-        if (dist_squared < (objects[i].r - light.r) * (objects[i].r - light.r))
+        // If light center is inside the circle (no margin or light leaks through near the edge)
+        if (dist_squared <= objects[i].r * objects[i].r)
         {
             return 1;  // Light is inside
         }
